@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<head>
+    <script type="text/javascript" src="initShaders.js"></script>
+    <script type="text/javascript" src="MV.js"></script>
+    <script type="text/javascript" src="Cube.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+
+    <script id="Cube-vertex-shader" type="x-shader/x-vertex">#version 300 es
+        in vec4 aPosition;
+        uniform mat4 P; 
+        uniform mat4 MV; 
+        uniform mat4 R; 
+        uniform float time;
+        out vec4 color;
+        
+        out vec4 vPosition;
+
+        void main()
+        {
+            gl_PointSize = 3.0;
+            //pos = aPosition.x + aPosition.y * 10. + aPosition.z * 100.;
+            //gl_Position = P * MV * R * aPosition + sign(aPosition) * vec4(0.15,0.3,0.1,0.0) * sin(time); //SKEW!
+
+            vec4 section = sign(aPosition) * 1000.;
+
+            gl_Position = P * MV * R * aPosition + 0.2*sin(time + aPosition.x*1.1 + aPosition.y*1.2 + aPosition.z*1.5);
+            vPosition = aPosition;
+            //color = aColor;
+        }
+    </script>
+
+    <script id="Cube-fragment-shader" type="x-shader/x-fragment">#version 300 es
+        precision highp float;
+
+        in vec4 vPosition;
+        //in vec4 color; //CHANGE TO MATCH NAMING SCHEME
+        //in float pos;
+        out vec4 fColor;
+
+        void main()
+        {
+            fColor = step(0.,vPosition);
+        }
+    </script>
+</head>
+<body>
+    <canvas id="webgl-canvas" width="512" height="512"></canvas>
+</body>
