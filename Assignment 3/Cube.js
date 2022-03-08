@@ -7,7 +7,7 @@ function dumbRandom(seed){
     return Math.abs((Math.sin(seed*10.12+1) * 1000) % 1)
 }
 
-function Cube( gl, numSides, vertexShaderId, fragmentShaderId ) {
+function Cube( gl, vertexShaderId, fragmentShaderId ) {
 
     // Initialize the shader pipeline for this object using either shader ids
     //   declared in the application's HTML header, or use the default names.
@@ -44,22 +44,8 @@ function Cube( gl, numSides, vertexShaderId, fragmentShaderId ) {
     }
 
     var indices = []
-    //manually:
-    //positions:
-    //                 z      y         y z   x         x    z   x y      x y z
-    //-1 -1 -1 | -1 -1 1 | -1 1 -1 | -1 1 1 | 1 -1 -1 | 1 -1 1 | 1 1 -1 | 1 1 1
-
-    //initially writing indices:
-    // 0 1 2 | 0 
-
-
-    //so there's a golden rule for making a triangle in this case: all points in a tri must only have a different coord in at most 1 axis
-    // and must all be the same on 1 axis
-    // so each triangle 
-    // so for each face, there's two tris
-
     for(var faceIdx = 0; faceIdx < 6; faceIdx++){
-        //We go through each face, which is further subdivided as:
+        //We go through each face of the cube, which is further subdivided as:
         var isPositive = faceIdx % 2 == 0 //Are we dealing with the part of the cube that in the negative/positive part of our axis
         var dimensionIdx = Math.floor(faceIdx / 2) //Which axis is constant for the points we want to build tris for
 
@@ -72,14 +58,10 @@ function Cube( gl, numSides, vertexShaderId, fragmentShaderId ) {
             //Then change the dimensions that aren't the one we care about so that we get each possible combo
             options[i*3+(dimensionIdx+1)%3] = i % 2 == 0 
             options[i*3+(dimensionIdx+2)%3] = Math.floor(i/2) % 2 == 0
-        }
-        //console.log(isPositive,dimensionIdx,options)
-        
-        //options[dimensionIdx] = 1 if isPositive else -1
-        if(!isPositive){
-            console.log(dimensionIdx)
-            console.log(idxFromPositive(...options.slice(6,9)),idxFromPositive(...options.slice(9,12)),idxFromPositive(...options.slice(3,6)))
-        }
+            //For example, if we're dealing with the positive part of the y axis, the y component is always positive and the other axes go through all possible options:
+            //example (dimensionIdx = 1, isPositive = true):
+            // - + -, + + -, - + +, + + +
+        } //This gives us a list of the positions that make up that face. Now, onto connecting them:
         
         //The ordering of the individual vertices is not my strongest point...derived from knowing
         // 1) there should be two per face
@@ -90,11 +72,7 @@ function Cube( gl, numSides, vertexShaderId, fragmentShaderId ) {
         indices.push(idxFromPositive(...options.slice(6,9)),idxFromPositive(...options.slice(9,12)),idxFromPositive(...options.slice(3,6)))
     }
 
-    // Record the number of indices in one of our two disks that we're using to make the
-    //   Cube.  At this point, the indices array contains the correct number of indices for a
-    //   single disk, and as we render the Cube as two disks of the same size, this value is
-    //   precisely what we need.
-    //
+    //Building rendering constants
     this.indices = { count : indices.length };
 
     this.uniforms = {
@@ -104,6 +82,7 @@ function Cube( gl, numSides, vertexShaderId, fragmentShaderId ) {
         time : gl.getUniformLocation(this.program, "time")
     }
 
+    //Square FOV, and camera looking into the positive z axis with +y as up
     this.P = perspective(90.0,1.0,0.5,5.0)
     this.MV = lookAt([0.0,0.0,-2.0],[0.0,0.0,-1.0],[0.0,1.0,0.0])
 
@@ -130,6 +109,7 @@ function Cube( gl, numSides, vertexShaderId, fragmentShaderId ) {
 
         gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer );
 
+        //Cute lil rotation matrix applied to show off perspective + correct winding order
         var R = rotate(time*time/8.,[Math.sin(time*1.4),Math.sin(time*2.),Math.sin(time/1.2)])
 
         gl.uniformMatrix4fv(this.uniforms.R, false, 

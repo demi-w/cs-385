@@ -8,7 +8,7 @@ function init(){
     gl = canvas.getContext("webgl2");
     gl.clearColor(.9,.8,0.2,255);
     gl.enable(gl.DEPTH_TEST); 
-    cone = new Cube(gl, 21);
+    cone = new Cube(gl);
     render(0);
 }
 window.onload = init;

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+    <script type="text/javascript" src="initShaders.js"></script>
+    <script type="text/javascript" src="MV.js"></script>
+    <script type="text/javascript" src="Cube.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+
+    <script id="Cube-vertex-shader" type="x-shader/x-vertex">#version 300 es
+        in vec4 aPosition;
+        uniform mat4 P; 
+        uniform mat4 MV; 
+        uniform mat4 R; 
+        uniform float time;
+        out vec4 color;
+        
+        out vec4 vPosition;
+
+        void main()
+        {
+            gl_PointSize = 3.0;
+
+            gl_Position = P * MV * R * aPosition;
+            vPosition = aPosition;
+        }
+    </script>
+
+    <script id="Cube-fragment-shader" type="x-shader/x-fragment">#version 300 es
+        precision highp float;
+
+        in vec4 vPosition;
+        out vec4 fColor;
+
+        void main()
+        {
+            fColor = step(0.,vPosition);
+        }
+    </script>
+</head>
+<body>
+    <canvas id="webgl-canvas" width="512" height="512"></canvas>
+</body>
