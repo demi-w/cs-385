@@ -1,0 +1,10 @@
+near = 1.5
+far = 1.5 + 2.96 = 4.46
+
+theta = arcsin(1.48/(1.48+1.5))
+theta = 29.7782356 deg
+
+fovy = 2 * theta
+fovy = 59.5564712 deg
+
+aspect = Calculated on init! no reason not to imo
